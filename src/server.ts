@@ -4,7 +4,12 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import helmet from 'helmet';
-import limiter from './lib/rate_limit.ts';
+
+import limiter from '@src/lib/rate_limit';
+import { connectToDatabase, disconnectFromDatabase } from './lib/mongoose';
+import { logger } from '@src/lib/windston';
+// Router
+import v1Router from '@src/routes/v1/index';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -39,10 +44,30 @@ app.use(
 app.use(helmet());
 app.use(limiter);
 
-app.get('/', (req, res) => {
-  res.json({ message: 'Hello World!' });
-});
+(async () => {
+  try {
+    await connectToDatabase();
 
-app.listen(PORT, () => {
-  console.log(`App running on ${PORT}`);
-});
+    app.use('/v1', v1Router);
+
+    app.listen(PORT, () => {
+      logger.info(`App running on ${PORT}`);
+    });
+  } catch (error) {
+    logger.error('Error starting server:', error);
+    if (process.env.NODE_ENV === 'production') process.exit(1);
+  }
+})();
+
+const handleServerShutdown = async () => {
+  try {
+    await disconnectFromDatabase();
+    logger.info('Server is shutting down...');
+    process.exit(0);
+  } catch (error) {
+    logger.error('Error shutting down server:', error);
+  }
+};
+
+process.on('SIGINT', handleServerShutdown); // Handle Ctrl+C
+process.on('SIGTERM', handleServerShutdown); // Handle termination signals
