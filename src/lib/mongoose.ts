@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { logger } from '@src/lib/windston';
+import { logger } from '@src/lib/winston';
 
 import type { ConnectOptions } from 'mongoose';
 

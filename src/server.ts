@@ -7,9 +7,9 @@ import helmet from 'helmet';
 
 import limiter from '@src/lib/rate_limit';
 import { connectToDatabase, disconnectFromDatabase } from './lib/mongoose';
-import { logger } from '@src/lib/windston';
+import { logger } from '@src/lib/winston';
 // Router
-import v1Router from '@src/routes/v1/index';
+import v1Router from '@src/routes/v1/index.route';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
