@@ -12,6 +12,7 @@ export const validator =
         query: req.query,
       });
 
+  
       if (req.body) req.body = result.body;
       next();
     } catch (error: unknown) {

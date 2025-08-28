@@ -3,15 +3,14 @@ import { logger } from '@src/lib/winston';
 import type { Request, Response } from 'express';
 
 import userModel from '@src/models/user.model';
-import tokenModel from '@src/models/token.model';
 import { loginInput } from '@src/schemas/user.schema';
 
 const login = async (req: Request, res: Response): Promise<void> => {
-  const { email, password } = req.body as loginInput;
+  const { email } = req.body as loginInput;
   try {
     const user = await userModel
       .findOne({ email })
-      .select('username email password role')
+      .select('username email role')
       .lean()
       .exec();
 

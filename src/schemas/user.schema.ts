@@ -1,4 +1,5 @@
 import userModel from '@src/models/user.model';
+
 import { z } from 'zod';
 
 const userSchema = z.object({
@@ -59,6 +60,16 @@ const userSchema = z.object({
     .optional(),
 });
 
+export const rawLoginSchema = z.object({
+  email: z
+    .email('Invalid Email Format')
+    .max(100, 'Email must be at most 100 characters'),
+  password: z
+    .string('password is required')
+    .min(6, 'Password must be at least 6 characters')
+    .max(100),
+});
+
 export const createUserSchema = z.object({
   body: userSchema.refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
@@ -66,7 +77,25 @@ export const createUserSchema = z.object({
   }),
 });
 
-export type createUserInput = z.infer<typeof createUserSchema>['body'];
+export const loginSchema = z.object({
+  body: rawLoginSchema.refine(
+    async ({ email, password }) => {
+      const user = await userModel.findOne({ email }).select('+password');
+      if (!user) return false;
+      const isMatch = await user.comparePassword(password);
+      return isMatch;
+    },
+    {
+      message: 'Invalid email or password',
+    },
+  ),
+});
 
-export type signUpInput = Pick<createUserInput, 'email' | 'password' | 'role'>;
-export type loginInput = Pick<createUserInput, 'email' | 'password'>;
+export type signUpInput = Pick<
+  z.infer<typeof userSchema>,
+  'email' | 'password' | 'role'
+>;
+export type loginInput = Pick<
+  z.infer<typeof rawLoginSchema>,
+  'email' | 'password'
+>;
