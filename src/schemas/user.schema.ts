@@ -91,6 +91,14 @@ export const loginSchema = z.object({
   ),
 });
 
+export const refreshTokenSchema = z.object({
+  cookies: z.object({
+    refreshToken: z
+      .string('Refresh token is required')
+      .min(1, 'Refresh token cannot be empty'),
+  }),
+});
+
 export type signUpInput = Pick<
   z.infer<typeof userSchema>,
   'email' | 'password' | 'role'
@@ -99,3 +107,5 @@ export type loginInput = Pick<
   z.infer<typeof rawLoginSchema>,
   'email' | 'password'
 >;
+
+export type refreshTokenInput = z.infer<typeof refreshTokenSchema>['cookies'];

@@ -10,10 +10,12 @@ export const validator =
         body: req.body,
         params: req.params,
         query: req.query,
+        cookies: req.cookies,
       });
 
-  
       if (req.body) req.body = result.body;
+      if (req.cookies) req.cookies = result.cookies as Record<string, any>;
+      
       next();
     } catch (error: unknown) {
       if (error instanceof ZodError) {

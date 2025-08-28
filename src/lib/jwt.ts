@@ -4,7 +4,7 @@ import { Response } from 'express';
 import jwt from 'jsonwebtoken';
 import tokenModel from '@src/models/token.model';
 
-const generateAccessToken = (userId: Types.ObjectId): string => {
+export const generateAccessToken = (userId: Types.ObjectId): string => {
   const token = jwt.sign({ userId }, process.env.JWT_ACCESS_SECRET as string, {
     expiresIn: '1h',
     subject: 'accessToken',
@@ -12,7 +12,7 @@ const generateAccessToken = (userId: Types.ObjectId): string => {
   return token;
 };
 
-const generateRefreshToken = (userId: Types.ObjectId): string => {
+export const generateRefreshToken = (userId: Types.ObjectId): string => {
   const token = jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET as string, {
     expiresIn: '7d',
     subject: 'refreshToken',
@@ -24,7 +24,6 @@ export const generateTokens = async (
   userId: Types.ObjectId,
   res: Response,
 ): Promise<{ accessToken: string; refreshToken: string }> => {
-  
   const accessToken = generateAccessToken(userId);
   const refreshToken = generateRefreshToken(userId);
 
@@ -35,6 +34,7 @@ export const generateTokens = async (
     refreshToken,
   });
 
+  // send the token to the client
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -42,4 +42,12 @@ export const generateTokens = async (
   });
 
   return { accessToken, refreshToken };
+};
+
+export const verifyAccessToken = (token: string) => {
+  return jwt.verify(token, process.env.JWT_ACCESS_SECRET as string);
+};
+
+export const verifyRefreshToken = (token: string) => {
+  return jwt.verify(token, process.env.JWT_REFRESH_SECRET as string);
 };
