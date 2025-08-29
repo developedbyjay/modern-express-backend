@@ -3,7 +3,7 @@ import userModel from '@src/models/user.model';
 import { updateUserInput } from '@src/schemas/user.schema';
 import type { Request, Response } from 'express';
 
-const updateUser = async (req: Request, res: Response) => {
+const updateProfile = async (req: Request, res: Response) => {
   const {
     username,
     email,
@@ -15,6 +15,7 @@ const updateUser = async (req: Request, res: Response) => {
     facebook,
   } = req.body as updateUserInput;
   try {
+    console.log(req.body);
     const updateFields: updateUserInput = {};
 
     if (username !== undefined) updateFields.username = username;
@@ -26,12 +27,19 @@ const updateUser = async (req: Request, res: Response) => {
     if (linkedIn !== undefined) updateFields.linkedIn = linkedIn;
     if (facebook !== undefined) updateFields.facebook = facebook;
 
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).json({
+        code: 'BadRequest',
+        message: 'No valid fields to update',
+      });
+    }
+
     const userUpdate = await userModel.findByIdAndUpdate(
       req.userId,
       updateFields,
       { new: true },
     );
-    
+
     res.status(200).json({
       code: 'Success',
       message: 'User profile updated successfully',
@@ -47,4 +55,4 @@ const updateUser = async (req: Request, res: Response) => {
   }
 };
 
-export default updateUser;
+export default updateProfile;

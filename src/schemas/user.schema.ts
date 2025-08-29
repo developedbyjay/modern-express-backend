@@ -95,7 +95,7 @@ export const refreshTokenSchema = z.object({
 
 export const updateUserSchema = z.object({
   body: createUserSchema.shape.body
-    .omit({ password: true, confirmPassword: true, role: true })
+    .omit({ password: true, confirmPassword: true, role: true }) 
     .partial()
     .refine(
       async (data) => {
