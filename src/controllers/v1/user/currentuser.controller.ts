@@ -2,7 +2,7 @@ import { logger } from '@src/lib/winston';
 import userModel from '@src/models/user.model';
 import type { NextFunction, Request, Response } from 'express';
 
-const profile = async (req: Request, res: Response, next: NextFunction) => {
+const currentUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.userId;
     const user = await userModel.findById(userId).select('-__v').lean().exec();
@@ -25,4 +25,4 @@ const profile = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export default profile;
+export default currentUser;

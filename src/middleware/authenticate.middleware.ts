@@ -37,12 +37,14 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
         code: 'AuthenticationError',
         message: 'Access token has expired',
       });
+      return;
     }
     if (err instanceof jwt.JsonWebTokenError) {
       res.status(401).json({
         code: 'AuthenticationError',
         message: 'Invalid access token',
       });
+      return;
     }
 
     res.status(500).json({

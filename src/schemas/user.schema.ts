@@ -127,19 +127,19 @@ export const updateUserSchema = z.object({
     )
     .refine(
       (data) => {
-        if (data.website || data.x || data.linkedIn || data.facebook) {
-          const urlPattern = /^(ftp|http|https):\/\/[^ "]+$/;
-          return (
-            urlPattern.test(data?.website ?? '') &&
-            urlPattern.test(data?.x ?? '') &&
-            urlPattern.test(data?.linkedIn ?? '') &&
-            urlPattern.test(data?.facebook ?? '')
-          );
+        const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+        const fields = ['website', 'x', 'linkedIn', 'facebook'] as const;
+        for (const field of fields) {
+          const value = data[field];
+          if (value && value.trim() !== '' && !urlPattern.test(value)) {
+            return false;
+          }
         }
         return true;
       },
       {
-        message: 'One or more URLs are invalid',
+        message:
+          'One or more URLs are invalid. URLs must start with http://, https://, or ftp://',
         path: ['website', 'x', 'linkedIn', 'facebook'],
       },
     ),
