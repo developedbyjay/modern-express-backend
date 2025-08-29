@@ -50,7 +50,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
       message: 'An unexpected error occurred',
       error: err,
     });
-      
+
     logger.error('Error in authenticate middleware', err);
   }
 };
