@@ -10,7 +10,7 @@ export interface IUser {
   socialLinks?: {
     website?: string;
     x?: string;
-    linkedin?: string;
+    linkedIn?: string;
     facebook?: string;
   };
   comparePassword: (password: string) => Promise<boolean>;
@@ -60,7 +60,7 @@ const userSchema = new Schema<IUser>(
         type: String,
         maxLength: [100, 'X (Twitter) handle must be at most 100 characters'],
       },
-      linkedin: {
+      linkedIn: {
         type: String,
         maxLength: [100, 'LinkedIn URL must be at most 100 characters'],
       },

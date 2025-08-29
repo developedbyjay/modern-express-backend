@@ -14,8 +14,9 @@ export const validator =
       });
 
       if (req.body) req.body = result.body;
-      if (req.cookies) req.cookies = result.cookies as Record<string, any>;
-      
+      if (req.cookies) req.cookies = result.cookies as Record<string, string>;
+      // if (req.params) req.params = result.params as string
+
       next();
     } catch (error: unknown) {
       if (error instanceof ZodError) {

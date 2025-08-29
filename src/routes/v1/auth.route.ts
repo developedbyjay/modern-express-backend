@@ -7,7 +7,7 @@ import {
   loginSchema,
   refreshTokenSchema,
 } from '@src/schemas/user.schema';
-import refreshToken from '@src/controllers/v1/auth/refresh_token.controller';
+import refreshToken from '@src/controllers/v1/auth/refreshtoken.controller';
 import logout from '@src/controllers/v1/auth/logout.controller';
 import authenticate from '@src/middleware/authenticate.middleware';
 
