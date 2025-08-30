@@ -11,7 +11,7 @@ class APIFeatures<T> {
   //   public page: number;
   public limit: number;
   public offset: number;
-  public search: Record<string, any>;
+  public search?: string;
   public sortBy: Record<string, 1 | -1>;
   public sortOrder: string;
 
@@ -35,22 +35,21 @@ class APIFeatures<T> {
     this.fields = '-__v -password';
     this.sortBy = { createdAt: 1 };
     this.sortOrder = this.queryString.sortOrder === 'desc' ? 'desc' : 'asc';
-    this.search = {};
+    this.search = this.queryString.search;
   }
 
   // Search Filter
   filter(allowedSearchFields: string[]): this {
     const searchFilter: any = {};
     if (this.queryString.search) {
-      const searchRegex = new RegExp(this.queryString.search, 'i');
+      const searchRegex = new RegExp(`^${this.queryString.search}$`, 'i');
       searchFilter['$or'] = allowedSearchFields.map((field) => ({
         [field]: searchRegex,
       }));
     }
 
-    this.search = searchFilter;
-    this.query = this.query.find(this.search);
-    this.queryCount = this.queryCount.countDocuments(this.search);
+    this.query = this.query.find(searchFilter);
+    this.queryCount = this.queryCount.countDocuments(searchFilter);
     return this;
   }
 
@@ -80,7 +79,7 @@ class APIFeatures<T> {
       this.offset = (parsedPage - 1) * this.limit;
     }
 
-    this.query = this.query.skip(this.offset).limit(this.limit);
+    // this.query = this.query.skip(this.offset).limit(this.limit);
     return this;
   }
 
@@ -88,7 +87,7 @@ class APIFeatures<T> {
     if (this.queryString.fields) {
       const fields = this.queryString.fields.split(',').join(' ');
       this.fields = fields;
-      this.query = this.query.select(this.fields);
+      //   this.query = this.query.select(this.fields);
     }
     return this;
   }
@@ -103,7 +102,7 @@ class APIFeatures<T> {
       });
       this.sortBy = Object.assign({}, ...sort);
       this.sortOrder = this.queryString.sortOrder === 'desc' ? 'desc' : 'asc';
-      this.query = this.query.sort(this.sortBy);
+      //   this.query = this.query.sort(this.sortBy);
     }
     return this;
   }
@@ -111,7 +110,11 @@ class APIFeatures<T> {
   getQuery(): { queryCount: Query<number, T>; query: Query<T[], T> } {
     return {
       queryCount: this.queryCount,
-      query: this.query,
+      query: this.query
+        .sort(this.sortBy)
+        .select(this.fields)
+        .skip(this.offset)
+        .limit(this.limit),
     };
   }
 }
