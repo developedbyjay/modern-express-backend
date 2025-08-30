@@ -19,7 +19,6 @@ export const validator =
         req.cookies = result.cookies as Record<string, string>;
       if (result.params) req.params = result.params as Record<string, string>;
 
-      console.log(req.normalizedQuery);
       next();
     } catch (error: unknown) {
       if (error instanceof ZodError) {

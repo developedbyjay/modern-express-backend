@@ -6,7 +6,7 @@ import tokenModel from '@src/models/token.model';
 
 export const generateAccessToken = (userId: Types.ObjectId): string => {
   const token = jwt.sign({ userId }, process.env.JWT_ACCESS_SECRET as string, {
-    expiresIn: '1h',
+    expiresIn: '7d',
     subject: 'accessToken',
   });
   return token;

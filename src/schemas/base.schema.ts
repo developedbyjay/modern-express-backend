@@ -23,6 +23,10 @@ export const paginationQuerySchema = z.object({
       .max(100, 'Sort by field must be at most 100 characters')
       .optional(),
     sortOrder: z.enum(['asc', 'desc']).optional(),
+    fields: z
+      .string()
+      .max(100, 'Fields must be at most 100 characters')
+      .optional(),
   }),
 });
 
