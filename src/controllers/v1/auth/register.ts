@@ -9,6 +9,7 @@ import { signUpInput } from '@src/schemas/user.schema';
 const register = async (req: Request, res: Response) => {
   const { email, password, role } = req.body as signUpInput;
 
+
   if (
     role === 'admin' &&
     process.env.WHITELIST_ADMINS_EMAIL &&

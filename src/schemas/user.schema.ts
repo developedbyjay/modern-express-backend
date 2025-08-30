@@ -2,6 +2,27 @@ import userModel from '@src/models/user.model';
 
 import { z } from 'zod';
 
+export const paginationQuerySchema = z.object({
+  limit: z
+    .string()
+    .regex(/^\d+$/, 'Limit must be a positive integer')
+    .optional(),
+  offset: z
+    .string()
+    .regex(/^\d+$/, 'Offset must be a non-negative integer')
+    .optional(),
+  page: z.string().regex(/^\d+$/, 'Page must be a positive integer').optional(),
+  search: z
+    .string()
+    .max(100, 'Search term must be at most 100 characters')
+    .optional(),
+  sortBy: z
+    .string()
+    .max(100, 'Sort by field must be at most 100 characters')
+    .optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+});
+
 export const createUserSchema = z.object({
   body: z
     .object({
@@ -15,7 +36,10 @@ export const createUserSchema = z.object({
         .refine(
           async (email) => {
             const user = await userModel.exists({ email });
-            return !user;
+            if (user) {
+              return false;
+            }
+            return true;
           },
           {
             message: 'Email already exists',
@@ -95,7 +119,7 @@ export const refreshTokenSchema = z.object({
 
 export const updateUserSchema = z.object({
   body: createUserSchema.shape.body
-    .omit({ password: true, confirmPassword: true, role: true }) 
+    .omit({ password: true, confirmPassword: true, role: true })
     .partial()
     .refine(
       async (data) => {

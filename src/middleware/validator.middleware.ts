@@ -12,10 +12,12 @@ export const validator =
         query: req.query,
         cookies: req.cookies,
       });
+ 
 
-      if (req.body) req.body = result.body;
-      if (req.cookies) req.cookies = result.cookies as Record<string, string>;
-      // if (req.params) req.params = result.params as string
+      if (result.body) req.body = result.body;
+      if (result.cookies) req.cookies = result.cookies as Record<string, string>;
+      if (result.query) req.query = result.query as Record<string, string>;
+      if (result.params) req.params = result.params as Record<string, string>;
 
       next();
     } catch (error: unknown) {

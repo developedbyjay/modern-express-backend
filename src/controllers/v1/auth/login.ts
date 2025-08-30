@@ -7,6 +7,7 @@ import { loginInput } from '@src/schemas/user.schema';
 
 const login = async (req: Request, res: Response): Promise<void> => {
   const { email } = req.body as loginInput;
+
   try {
     const user = await userModel
       .findOne({ email })
