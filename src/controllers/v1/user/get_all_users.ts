@@ -5,7 +5,7 @@ import { paginationQueryInput } from '@src/schemas/base.schema';
 
 const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const query = req.query as paginationQueryInput;
+    const query = req.normalizedQuery as paginationQueryInput;
 
     // Parse and validate pagination parameters
     const defaultLimit = process.env.DEFAULT_LIMIT
@@ -64,6 +64,7 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
         { email: searchRegex },
         { firstName: searchRegex },
         { lastName: searchRegex },
+        { role: searchRegex },
       ];
     }
 

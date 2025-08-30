@@ -4,12 +4,12 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import helmet from 'helmet';
-
 import limiter from '@src/lib/rate_limit';
 import { connectToDatabase, disconnectFromDatabase } from './lib/mongoose';
 import { logger } from '@src/lib/winston';
-// Router
+
 import v1Router from '@src/routes/v1/index.route';
+import { normalizedQuery } from './middleware/normalizedQuery.middleware';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -31,6 +31,9 @@ const corsOption: CorsOptions = {
     }
   },
 };
+
+// It is used to serve as a mutation for the req.query which can't be mutated due to its getter function
+app.use(normalizedQuery);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

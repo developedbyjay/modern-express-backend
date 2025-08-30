@@ -5,9 +5,9 @@ import profile from '@src/controllers/v1/user/current_user';
 import updateProfile from '@src/controllers/v1/user/update_current_user';
 import { validator } from '@src/middleware/validator.middleware';
 import {
-  paginationQuerySchema,
   updateUserSchema,
 } from '@src/schemas/user.schema';
+import { paginationQuerySchema } from '@src/schemas/base.schema';
 import deleteCurrentUser from '@src/controllers/v1/user/delete_current_user';
 import getAllUsers from '@src/controllers/v1/user/get_all_users';
 

@@ -12,13 +12,14 @@ export const validator =
         query: req.query,
         cookies: req.cookies,
       });
- 
 
       if (result.body) req.body = result.body;
-      if (result.cookies) req.cookies = result.cookies as Record<string, string>;
-      if (result.query) req.query = result.query as Record<string, string>;
+      if (result.query) req.normalizedQuery = result.query;
+      if (result.cookies)
+        req.cookies = result.cookies as Record<string, string>;
       if (result.params) req.params = result.params as Record<string, string>;
 
+      console.log(req.normalizedQuery);
       next();
     } catch (error: unknown) {
       if (error instanceof ZodError) {

@@ -6,6 +6,7 @@ declare global {
   namespace Express {
     interface Request {
       userId?: Types.ObjectId;
+      normalizedQuery?: Record<string, any>;
     }
   }
 }
