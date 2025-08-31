@@ -9,7 +9,7 @@ import { connectToDatabase, disconnectFromDatabase } from './lib/mongoose';
 import { logger } from '@src/lib/winston';
 
 import v1Router from '@src/routes/v1/index.route';
-import { normalizedQuery } from './middleware/normalizedQuery.middleware';
+import { normalizedQuery } from './middleware/normalizedQuery';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
