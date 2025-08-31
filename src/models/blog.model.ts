@@ -1,3 +1,4 @@
+import { generateSlug } from '@src/utils/index.util';
 import { model, Schema, Types } from 'mongoose';
 
 export interface IBlog {
@@ -20,7 +21,7 @@ export interface IBlog {
 }
 
 const blogSchema = new Schema<IBlog>(
-  { 
+  {
     title: {
       type: String,
       required: [true, 'Title is required'],
@@ -61,6 +62,18 @@ const blogSchema = new Schema<IBlog>(
     },
   },
 );
+
+// Mongoose Pre validate is used to ensure that the slug field is validated alongside the other fields upon saving
+blogSchema.pre<IBlog>('validate', function (next) {
+  if (this.title && !this.slug) {
+    this.slug = generateSlug(this.title);
+  }
+  if (this.slug) {
+    this.slug = this.slug.toLowerCase().trim();
+  }
+
+  next();
+});
 
 const blogModel = model<IBlog>('Blog', blogSchema);
 

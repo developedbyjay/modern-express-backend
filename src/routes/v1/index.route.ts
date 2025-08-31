@@ -17,4 +17,5 @@ router.get('/', (req, res) => {
 router.use('/auth', authRoute);
 router.use('/user', userRoute);
 router.use('/blogs', blogRoute);
+
 export default router;

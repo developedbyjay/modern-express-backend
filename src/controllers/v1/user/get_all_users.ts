@@ -1,19 +1,25 @@
 import userModel from '@src/models/user.model';
 import type { NextFunction, Request, Response } from 'express';
 import { logger } from '@src/lib/winston';
-import { paginationQueryInput } from '@src/schemas/base.schema';
+import { queryStringInput } from '@src/schemas/base.schema';
 import { APIFeatures } from '@src/utils/apiFeatures';
 
 const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const normalizedQuery = req.normalizedQuery as paginationQueryInput;
+    const normalizedQuery = req.normalizedQuery as queryStringInput;
 
     const apiFeatures = new APIFeatures(
       userModel.find(),
       userModel.countDocuments(),
       normalizedQuery,
     )
-      .filter(['username', 'email', 'firstName', 'lastName', 'role'])
+      .filter([
+        'username',
+        'email',
+        'role',
+        'firstName',
+        'lastName',
+      ])
       .paginate()
       .limitFields()
       .sort([

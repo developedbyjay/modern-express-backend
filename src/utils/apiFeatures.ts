@@ -1,10 +1,10 @@
-import { paginationQueryInput } from '@src/schemas/base.schema';
+import { queryStringInput } from '@src/schemas/base.schema';
 import { Query } from 'mongoose';
 
 class APIFeatures<T> {
   private query: Query<T[], T>;
   private queryCount: Query<number, T>;
-  private queryString: paginationQueryInput;
+  private queryString: queryStringInput;
   private maxLimit: number;
   private fields: string;
 
@@ -14,11 +14,12 @@ class APIFeatures<T> {
   public search?: string;
   public sortBy: Record<string, 1 | -1>;
   public sortOrder: string;
+  public status?: 'draft' | 'published' | 'archived';
 
   constructor(
     query: Query<T[], T>,
     queryCount: Query<number, T>,
-    queryString: paginationQueryInput,
+    queryString: queryStringInput,
   ) {
     this.query = query;
     this.queryCount = queryCount;
@@ -33,19 +34,25 @@ class APIFeatures<T> {
       ? parseInt(process.env.MAX_LIMIT, 10)
       : 100;
     this.fields = '-__v -password';
-    this.sortBy = { createdAt: 1 };
+    this.sortBy = { createdAt: -1 };
     this.sortOrder = this.queryString.sortOrder === 'desc' ? 'desc' : 'asc';
     this.search = this.queryString.search;
+    this.status = this.queryString.status;
   }
 
-  // Search Filter
-  filter(allowedSearchFields: string[]): this {
+  filter(allowedSearchFields: string[] | undefined): this {
     const searchFilter: any = {};
+    // Search Filter
     if (this.queryString.search) {
-      const searchRegex = new RegExp(`^${this.queryString.search}$`, 'i');
-      searchFilter['$or'] = allowedSearchFields.map((field) => ({
+      const searchRegex = new RegExp(this.queryString.search, 'i');
+      searchFilter['$or'] = allowedSearchFields?.map((field) => ({
         [field]: searchRegex,
       }));
+    }
+    // Status Filter
+    if (this.queryString.status) {
+      searchFilter['status'] = this.queryString.status;
+      this.status = this.queryString.status;
     }
 
     this.query = this.query.find(searchFilter);
@@ -83,11 +90,18 @@ class APIFeatures<T> {
     return this;
   }
 
-  limitFields(): this {
-    if (this.queryString.fields) {
-      const fields = this.queryString.fields.split(',').join(' ');
+  limitFields(fieldsToRemove?: string[]): this {
+    if (fieldsToRemove) {
+      const fields = fieldsToRemove.map((field) => `-${field}`).join(' ');
       this.fields = fields;
-      //   this.query = this.query.select(this.fields);
+    }
+
+    if (this.queryString.fields) {
+      const fields = this.queryString.fields
+        .split(',')
+        .map((field) => `-${field}`)
+        .join(' ');
+      this.fields = fields;
     }
     return this;
   }

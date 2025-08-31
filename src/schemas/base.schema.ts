@@ -12,7 +12,7 @@ export const paramSchema = z.object({
     }),
 });
 
-export const paginationQuerySchema = z.object({
+export const queryStringSchema = z.object({
   query: z.object({
     limit: z
       .string()
@@ -39,11 +39,10 @@ export const paginationQuerySchema = z.object({
       .string()
       .max(100, 'Fields must be at most 100 characters')
       .optional(),
+    status: z.enum(['draft', 'published', 'archived']).optional(),
   }),
 });
 
-export type paginationQueryInput = z.infer<
-  typeof paginationQuerySchema
->['query'];
+export type queryStringInput = z.infer<typeof queryStringSchema>['query'];
 
 export type paramSchemaInput = z.infer<typeof paramSchema>['params'];

@@ -6,6 +6,7 @@ import { createBlogSchema } from '@src/schemas/blog.schema';
 import { validator } from '@src/middleware/validator';
 import multer from 'multer';
 import { uploadBlogBanner } from '@src/middleware/uploadBlogBanner';
+import getAllBlogs from '@src/controllers/v1/blog/get_all_blogs';
 
 const router = Router();
 const upload = multer();
@@ -19,5 +20,7 @@ router.post(
   validator(createBlogSchema),
   createBlog,
 );
+
+router.get('/', authenticate, authorize(['admin', 'user']), getAllBlogs);
 
 export default router;

@@ -6,21 +6,22 @@ export const createBlogSchema = z.object({
       .string()
       .min(2, { message: 'Title must be at least 2 characters long' })
       .max(100),
-    status: z.enum(['draft', 'published', 'archived']).optional(),
+    status: z.enum(['draft', 'published', 'archived']).default('draft'),
     content: z
       .string()
       .min(10, { message: 'Content must be at least 10 characters long' }),
     slug: z
       .string()
       .min(2, { message: 'Slug must be at least 2 characters long' })
-      .max(100),
+      .max(100)
+      .optional(),
     banner: z.object({
-      publicId: z.string(),
-      url: z.string().url(),
-      width: z.number().min(1),
-      height: z.number().min(1),
+      publicId: z.string('Public ID is required'),
+      url: z.url('Banner URL is required'),
+      width: z.number().min(1, { message: 'Width is required' }),
+      height: z.number().min(1, { message: 'Height is required' }),
     }),
-    author: z.string().uuid(),
+    author: z.string().optional(),
   }),
 });
 
