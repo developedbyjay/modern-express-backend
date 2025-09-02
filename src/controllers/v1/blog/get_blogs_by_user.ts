@@ -1,37 +1,37 @@
-import type { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import blogModel from '@src/models/blog.model';
-import { logger } from '@src/lib/winston';
+import userModel from '@src/models/user.model';
 import { queryStringInput } from '@src/schemas/base.schema';
 import { APIFeatures } from '@src/utils/apiFeatures';
-import userModel from '@src/models/user.model';
+import { logger } from '@src/lib/winston';
 
-const getAllBlogs = async (req: Request, res: Response) => {
-  const userId = req.userId;
-  const normalizedQuery = req.normalizedQuery as queryStringInput;
+const getBlogsByUser = async (req: Request, res: Response) => {
   try {
-    const user = await userModel.findById(userId).select('role').lean().exec();
+    const { userId } = req.params;
+    const normalizedQuery = req.normalizedQuery as queryStringInput;
+    const currentUserId = req.userId;
 
-    if (user?.role === 'user') {
+    const currentUser = await userModel
+      .findById(currentUserId)
+      .select('role')
+      .lean()
+      .exec();
+
+    if (currentUser?.role === 'user') {
       normalizedQuery.status = 'published';
     }
-
     const apiFeatures = new APIFeatures(
-      blogModel.find(),
-      blogModel.countDocuments(),
+      blogModel.find({ author: userId }),
+      blogModel.countDocuments({ author: userId }),
       normalizedQuery,
     )
-      //   Fields to Filter
       .filter(['title', 'content'])
       .paginate()
-      //   Fields to Remove
       .limitFields(['banner.publicId', '__v'])
       .sort(['createdAt', 'updatedAt']);
 
     const { queryCount, query } = apiFeatures.getQuery();
-    const [blogs, total] = await Promise.all([
-      query.populate('author', '-createdAt -updatedAt -__v -password -role'),
-      queryCount,
-    ]);
+    const [blogs, total] = await Promise.all([query, queryCount]);
 
     const totalPages = Math.ceil(total / apiFeatures.limit);
     const currentPage = Math.floor(apiFeatures.offset / apiFeatures.limit) + 1;
@@ -59,9 +59,14 @@ const getAllBlogs = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Error fetching blogs:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({
+      code: 'ServerError',
+      message: 'Internal Server Error',
+      error,
+    });
+    
+    logger.error(`Error while fetching blogs by user`, error);
   }
 };
 
-export default getAllBlogs;
+export default getBlogsByUser;

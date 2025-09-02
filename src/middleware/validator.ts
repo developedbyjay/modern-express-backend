@@ -7,7 +7,7 @@ export const validator =
   (schema: ZodObject) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log(req.body);
+
       const result = await schema.parseAsync({
         body: req.body,
         params: req.params,
@@ -15,7 +15,7 @@ export const validator =
         cookies: req.cookies,
       });
 
-      console.log(result);
+ 
 
       if (result.body) req.body = result.body;
       if (result.query) req.normalizedQuery = result.query;

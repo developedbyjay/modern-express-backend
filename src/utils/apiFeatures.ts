@@ -93,7 +93,7 @@ class APIFeatures<T> {
   limitFields(fieldsToRemove?: string[]): this {
     if (fieldsToRemove) {
       const fields = fieldsToRemove.map((field) => `-${field}`).join(' ');
-      this.fields = fields;
+      this.query = this.query.select(fields);
     }
 
     if (this.queryString.fields) {
@@ -101,7 +101,7 @@ class APIFeatures<T> {
         .split(',')
         .map((field) => `-${field}`)
         .join(' ');
-      this.fields = fields;
+      this.query = this.query.select(fields);
     }
     return this;
   }
@@ -126,7 +126,7 @@ class APIFeatures<T> {
       queryCount: this.queryCount,
       query: this.query
         .sort(this.sortBy)
-        .select(this.fields)
+        // .select(this.fields)
         .skip(this.offset)
         .limit(this.limit),
     };
