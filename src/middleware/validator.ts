@@ -7,15 +7,12 @@ export const validator =
   (schema: ZodObject) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-
       const result = await schema.parseAsync({
         body: req.body,
         params: req.params,
         query: req.query,
         cookies: req.cookies,
       });
-
- 
 
       if (result.body) req.body = result.body;
       if (result.query) req.normalizedQuery = result.query;

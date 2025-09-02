@@ -1,4 +1,17 @@
+import blogModel from '@src/models/blog.model';
+import { isValidObjectId } from 'mongoose';
 import { z } from 'zod';
+
+const ParamSchema = z.object({
+  params: z
+    .object({
+      blogId: z.string().min(1, 'Blog ID is required'),
+      slug: z.string('Slug must be a string').min(2, 'Slug is required'),
+    })
+    .refine((data) => isValidObjectId(data.blogId), {
+      message: 'Invalid Object ID',
+    }),
+});
 
 export const createBlogSchema = z.object({
   body: z.object({
@@ -25,4 +38,27 @@ export const createBlogSchema = z.object({
   }),
 });
 
+export const updateBlogSchema = z.object({
+  body: createBlogSchema.shape.body.partial().refine(
+    async (data) => {
+      const blog = await blogModel.findOne({ slug: data.slug });
+      if (blog) return false;
+      return true;
+    },
+    {
+      message: 'Slug already exists',
+    },
+  ),
+});
+
 export type CreateBlogInput = z.infer<typeof createBlogSchema>['body'];
+export type UpdateBlogInput = z.infer<typeof updateBlogSchema>['body'];
+
+export type blogParamInput = z.infer<typeof ParamSchema>['params'];
+
+export const slugSchema = z.object({
+  params: ParamSchema.shape.params.pick({ slug: true }),
+});
+export const blogIdSchema = z.object({
+  params: ParamSchema.shape.params.pick({ blogId: true }),
+});

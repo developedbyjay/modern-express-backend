@@ -1,8 +1,17 @@
 import userModel from '@src/models/user.model';
+import { isValidObjectId } from 'mongoose';
 
 import { z } from 'zod';
 
-
+export const userParamSchema = z.object({
+  params: z
+    .object({
+      userId: z.string().min(1, 'User ID is required'),
+    })
+    .refine((data) => isValidObjectId(data.userId), {
+      message: 'Invalid Object ID',
+    }),
+});
 
 export const createUserSchema = z.object({
   body: z
@@ -172,3 +181,5 @@ export type updateUserInput = Pick<
 >;
 
 export type refreshTokenInput = z.infer<typeof refreshTokenSchema>['cookies'];
+
+export type userParamInput = z.infer<typeof userParamSchema>['params'];

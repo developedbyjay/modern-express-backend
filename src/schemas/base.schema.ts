@@ -1,16 +1,5 @@
 import { z } from 'zod';
-import { isValidObjectId } from 'mongoose';
 
-export const paramSchema = z.object({
-  params: z
-    .object({
-      userId: z.string().min(1, 'User ID is required').optional(),
-      postId: z.string().min(1, 'Post ID is required').optional(),
-    })
-    .refine((data) => isValidObjectId(data.userId), {
-      message: 'Invalid Object ID',
-    }),
-});
 
 export const queryStringSchema = z.object({
   query: z.object({
@@ -45,4 +34,3 @@ export const queryStringSchema = z.object({
 
 export type queryStringInput = z.infer<typeof queryStringSchema>['query'];
 
-export type paramSchemaInput = z.infer<typeof paramSchema>['params'];

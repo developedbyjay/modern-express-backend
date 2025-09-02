@@ -41,4 +41,32 @@ const uploadToCloudinary = (
   });
 };
 
-export { uploadToCloudinary };
+const deleteFromCloudinary = async (publicId: string) => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.destroy(publicId, (error, result) => {
+      if (error) {
+        logger.error('Cloudinary delete error:', error);
+        return reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
+const deleteMultipleFromCloudinary = async (publicIds: string[]) => {
+  return new Promise((resolve, reject) => {
+    cloudinary.api.delete_resources(publicIds, (error, result) => {
+      if (error) {
+        logger.error('Cloudinary delete multiple error:', error);
+        return reject(error);
+      }
+      resolve(result);
+    });
+  });
+};
+
+export {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+  deleteMultipleFromCloudinary,
+};

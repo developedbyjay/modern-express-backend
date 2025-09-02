@@ -21,7 +21,7 @@ const getBlogsByUser = async (req: Request, res: Response) => {
       normalizedQuery.status = 'published';
     }
     const apiFeatures = new APIFeatures(
-      blogModel.find({ author: userId }),
+      blogModel.find({ author: userId }).populate('author', 'username email'),
       blogModel.countDocuments({ author: userId }),
       normalizedQuery,
     )
@@ -64,7 +64,7 @@ const getBlogsByUser = async (req: Request, res: Response) => {
       message: 'Internal Server Error',
       error,
     });
-    
+
     logger.error(`Error while fetching blogs by user`, error);
   }
 };

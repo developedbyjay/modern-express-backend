@@ -4,8 +4,8 @@ import authenticate from '@src/middleware/authenticate';
 import profile from '@src/controllers/v1/user/current_user';
 import updateProfile from '@src/controllers/v1/user/update_current_user';
 import { validator } from '@src/middleware/validator';
-import { updateUserSchema } from '@src/schemas/user.schema';
-import { queryStringSchema, paramSchema } from '@src/schemas/base.schema';
+import { updateUserSchema, userParamSchema } from '@src/schemas/user.schema';
+import { queryStringSchema } from '@src/schemas/base.schema';
 import deleteCurrentUser from '@src/controllers/v1/user/delete_current_user';
 import getAllUsers from '@src/controllers/v1/user/get_all_users';
 import getUser from '@src/controllers/v1/user/get_user';
@@ -41,7 +41,7 @@ router.get(
   '/:userId',
   authenticate,
   authorize(['admin']),
-  validator(paramSchema),
+  validator(userParamSchema),
   getUser,
 );
 
@@ -49,7 +49,7 @@ router.delete(
   '/:userId',
   authenticate,
   authorize(['admin']),
-  validator(paramSchema),
+  validator(userParamSchema),
   deleteUser,
 );
 export default router;

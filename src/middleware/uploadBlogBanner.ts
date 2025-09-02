@@ -1,8 +1,6 @@
-import { uploadToCloudinary } from '@src/lib/cloudinary';
+import { deleteFromCloudinary, uploadToCloudinary } from '@src/lib/cloudinary';
 import { logger } from '@src/lib/winston';
 import blogModel from '@src/models/blog.model';
-
-import Blog from '@src/models/blog.model';
 import { UploadApiErrorResponse } from 'cloudinary';
 import type { Request, Response, NextFunction } from 'express';
 
@@ -21,30 +19,35 @@ export const uploadBlogBanner = (method: 'post' | 'put') => {
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return res.status(400).json({ error: 'File size exceeds limit (2mb)' });
+      return res.status(413).json({ error: 'File size exceeds limit (2mb)' });
     }
 
     try {
       const { blogId } = req.params;
 
-      //   const blog = await blogModel
-      //     .findById({ id: blogId })
-      //     .select('banner.publicId')
-      //     .exec();
+      const blog = await blogModel
+        .findById(blogId)
+        .select('banner.publicId')
+        .exec();
 
       const data = await uploadToCloudinary(
         file.buffer,
-        undefined, // or provide a valid publicId if available
+        blog?.banner.publicId.replace('blog-api', ''),
       );
+
+      if (method === 'put' && req.file && blog?.banner.publicId) {
+        await deleteFromCloudinary(blog.banner.publicId);
+      }
 
       if (!data) {
         res.status(500).json({
           code: 'ServerError',
           message: 'Internal Server Error',
         });
+
         return logger.error('Error while uploading blog banner to cloudinary', {
           blogId,
-          //   publicId: blog?.banner.publicId,
+          publicId: blog?.banner.publicId,
         });
       }
 
@@ -56,10 +59,13 @@ export const uploadBlogBanner = (method: 'post' | 'put') => {
       };
 
       req.body.banner = newBanner;
+
       next();
     } catch (error: UploadApiErrorResponse | any) {
       logger.error('Cloudinary upload error:', error);
-      return res.status(500).json({ error: 'Failed to upload image' });
+      return res
+        .status(error.http || 500)
+        .json({ error: 'Failed to upload image' });
     }
   };
 };

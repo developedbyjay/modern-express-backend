@@ -1,10 +1,10 @@
 import userModel from '@src/models/user.model';
-import { paramSchemaInput } from '@src/schemas/base.schema';
+import { userParamInput } from '@src/schemas/user.schema';
 
 import type { Request, Response } from 'express';
 
 const deleteUser = async (req: Request, res: Response) => {
-  const { userId } = req.params as paramSchemaInput;
+  const { userId } = req.params as userParamInput;
 
   try {
     await userModel.deleteOne({ _id: userId });
