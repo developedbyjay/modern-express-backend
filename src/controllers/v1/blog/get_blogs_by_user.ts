@@ -20,6 +20,7 @@ const getBlogsByUser = async (req: Request, res: Response) => {
     if (currentUser?.role === 'user') {
       normalizedQuery.status = 'published';
     }
+    
     const apiFeatures = new APIFeatures(
       blogModel.find({ author: userId }).populate('author', 'username email'),
       blogModel.countDocuments({ author: userId }),

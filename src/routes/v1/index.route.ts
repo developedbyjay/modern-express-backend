@@ -2,6 +2,8 @@ import { Router } from 'express';
 import authRoute from './auth.route';
 import userRoute from './user.route';
 import blogRoute from './blog.route';
+import likeRoute from './like.route';
+import commentRoute from './comment.route';
 
 const router = Router();
 
@@ -17,5 +19,7 @@ router.get('/', (req, res) => {
 router.use('/auth', authRoute);
 router.use('/user', userRoute);
 router.use('/blogs', blogRoute);
+router.use('/likes', likeRoute);
+router.use('/comments', commentRoute);
 
 export default router;

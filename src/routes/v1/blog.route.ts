@@ -22,9 +22,10 @@ import deleteBlog from '@src/controllers/v1/blog/delete_blog';
 const router = Router();
 const upload = multer();
 
+router.use(authenticate);
+
 router.post(
   '/',
-  authenticate,
   authorize(['admin']),
   upload.single('banner_image'),
   uploadBlogBanner('post'),
@@ -33,7 +34,6 @@ router.post(
 );
 router.get(
   '/',
-  authenticate,
   authorize(['admin', 'user']),
   validator(queryStringSchema),
   getAllBlogs,
@@ -41,7 +41,6 @@ router.get(
 
 router.get(
   '/user/:userId',
-  authenticate,
   authorize(['admin', 'user']),
   validator(userParamSchema),
   validator(queryStringSchema),
@@ -50,7 +49,6 @@ router.get(
 
 router.get(
   '/:slug',
-  authenticate,
   authorize(['admin', 'user']),
   validator(slugSchema),
   getBlogBySlug,
@@ -58,7 +56,6 @@ router.get(
 
 router.put(
   '/:blogId',
-  authenticate,
   authorize(['admin', 'user']),
   upload.single('banner_image'),
   uploadBlogBanner('put'),
@@ -69,7 +66,6 @@ router.put(
 
 router.delete(
   '/:blogId',
-  authenticate,
   authorize(['admin']),
   validator(blogIdSchema),
   deleteBlog,

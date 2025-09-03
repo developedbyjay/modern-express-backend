@@ -3,14 +3,10 @@ import { isValidObjectId } from 'mongoose';
 import { z } from 'zod';
 
 const ParamSchema = z.object({
-  params: z
-    .object({
-      blogId: z.string().min(1, 'Blog ID is required'),
-      slug: z.string('Slug must be a string').min(2, 'Slug is required'),
-    })
-    .refine((data) => isValidObjectId(data.blogId), {
-      message: 'Invalid Object ID',
-    }),
+  params: z.object({
+    blogId: z.string('BlogId is required').min(1, 'Blog ID is required'),
+    slug: z.string('Slug must be a string').min(2, 'Slug is required'),
+  }),
 });
 
 export const createBlogSchema = z.object({
@@ -59,6 +55,13 @@ export type blogParamInput = z.infer<typeof ParamSchema>['params'];
 export const slugSchema = z.object({
   params: ParamSchema.shape.params.pick({ slug: true }),
 });
+
 export const blogIdSchema = z.object({
-  params: ParamSchema.shape.params.pick({ blogId: true }),
+  params: ParamSchema.shape.params
+    .pick({ blogId: true })
+    .refine((data) => isValidObjectId(data.blogId), {
+      message: 'Invalid Object ID',
+    }),
 });
+
+
