@@ -10,6 +10,7 @@ import { logger } from '@src/lib/winston';
 
 import v1Router from '@src/routes/v1/index.route';
 import { normalizedQuery } from './middleware/normalizedQuery';
+import { initializeRedisConnection, redisDisconnect } from './redis/connection';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -49,8 +50,8 @@ app.use(limiter);
 
 (async () => {
   try {
-    
     await connectToDatabase();
+    await initializeRedisConnection();
 
     app.use('/v1', v1Router);
 
@@ -66,6 +67,7 @@ app.use(limiter);
 const handleServerShutdown = async () => {
   try {
     await disconnectFromDatabase();
+    await redisDisconnect();
     logger.info('Server is shutting down...');
     process.exit(0);
   } catch (error) {

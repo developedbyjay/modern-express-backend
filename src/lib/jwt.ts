@@ -6,7 +6,7 @@ import tokenModel from '@src/models/token.model';
 
 export const generateAccessToken = (userId: Types.ObjectId): string => {
   const token = jwt.sign({ userId }, process.env.JWT_ACCESS_SECRET as string, {
-    expiresIn: '7d',
+    expiresIn: '1h',
     subject: 'accessToken',
   });
   return token;
@@ -28,6 +28,9 @@ export const generateTokens = async (
   const refreshToken = generateRefreshToken(userId);
 
   await tokenModel.create({ token: refreshToken, userId: userId._id });
+  // Storing the refresh token in redis... (for practice, i am storing it in monogDB for now)
+  
+
 
   logger.info('Refresh Token Created', {
     userId: userId._id,
