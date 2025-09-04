@@ -8,16 +8,25 @@ export const generateSlug = (title: string): string => {
   const slug = title
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/[^a-z0-9-]/g, '') // Remove non-alphanumeric chars except hyphens
-    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
-  // Ensure slug is not empty after cleaning
   if (!slug) {
     return `blog-${Math.random().toString(36).slice(2)}`;
   }
 
-  const randomChars = Math.random().toString(36).slice(2, 8); // Limit to 6 chars
+  const randomChars = Math.random().toString(36).slice(2, 8);
   return `${slug}-${randomChars}`;
+};
+
+export const generateTTL = (tokenExp: number) => {
+  const currentTime = Math.floor(Date.now() / 1000);
+  const secondsToExpire = tokenExp - currentTime;
+  return secondsToExpire > 0 ? secondsToExpire : 0;
+};
+
+export const generateRedisKey = (userId: string) => {
+  return 'user-' + userId;
 };

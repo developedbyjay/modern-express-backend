@@ -5,14 +5,25 @@ import type { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import { generateAccessToken, verifyRefreshToken } from '@src/lib/jwt';
 import type { refreshTokenInput } from '@src/schemas/user.schema';
+import { decryptData } from '@src/lib/encrption';
+import { getCache } from '@src/redis';
+import { generateRedisKey } from '@src/utils/index.util';
 
 const refreshToken = async (req: Request, res: Response): Promise<void> => {
   const { refreshToken } = req.cookies as refreshTokenInput;
- 
-  try {
-    const tokenExists = await tokenModel.exists({ token: refreshToken });
 
-    if (!tokenExists) {
+  try {
+    const decryptedRefreshToken = decryptData(refreshToken);
+
+    const jwtPayload = verifyRefreshToken(decryptedRefreshToken) as {
+      userId: Types.ObjectId;
+    };
+
+    const userId = jwtPayload.userId;
+
+    const cachedToken = await getCache(generateRedisKey(userId.toString()));
+
+    if (!cachedToken || cachedToken !== refreshToken) {
       res.status(401).json({
         code: 'AuthenticationError',
         message: 'Invalid refresh Token',
@@ -20,11 +31,24 @@ const refreshToken = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const jwtPayload = verifyRefreshToken(refreshToken) as {
-      userId: Types.ObjectId;
-    };
+    //    USEFUL WHEN STORING IT IN MONGODB
+    // const tokenExists = await tokenModel.exists({ token: refreshToken });
 
-    const accessToken = generateAccessToken(jwtPayload.userId);
+    // if (!tokenExists) {
+    //   res.status(401).json({
+    //     code: 'AuthenticationError',
+    //     message: 'Invalid refresh Token',
+    //   });
+    //   return;
+    // }
+
+    logger.info('Refresh Token Generated', {
+      userId,
+      refreshToken: decryptedRefreshToken,
+      encryptedRefreshToken: refreshToken,
+      cachedToken,
+    });
+    const accessToken = generateAccessToken(userId);
 
     res.status(200).json({
       accessToken,
