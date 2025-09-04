@@ -49,6 +49,7 @@ app.use(limiter);
 
 (async () => {
   try {
+    
     await connectToDatabase();
 
     app.use('/v1', v1Router);
