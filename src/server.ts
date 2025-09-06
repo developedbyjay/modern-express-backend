@@ -1,5 +1,5 @@
 import type { CorsOptions } from 'cors';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
@@ -7,7 +7,6 @@ import helmet from 'helmet';
 import limiter from '@src/lib/rate_limit';
 import { connectToDatabase, disconnectFromDatabase } from './lib/mongoose';
 import { logger } from '@src/lib/winston';
-
 import v1Router from '@src/routes/v1/index.route';
 import { normalizedQuery } from './middleware/normalizedQuery';
 import { initializeRedisConnection, redisDisconnect } from './redis/connection';
@@ -17,6 +16,11 @@ const PORT = process.env.PORT || 8080;
 
 const corsOption: CorsOptions = {
   origin(origin, callback) {
+    console.log('CORS Origin:', {
+      origin,
+      type: origin ? 'cross-origin' : 'same-origin/direct',
+      nodeEnv: process.env.NODE_ENV,
+    });
     if (
       process.env.NODE_ENV === 'development' ||
       !origin ||
@@ -31,6 +35,7 @@ const corsOption: CorsOptions = {
       );
     }
   },
+  credentials: true,
 };
 
 // It is used to serve as a mutation for the req.query which can't be mutated due to its getter function
@@ -39,7 +44,7 @@ app.use(normalizedQuery);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOption));
-app.use(cookieParser());
+app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(
   compression({
     threshold: 1024,
@@ -74,6 +79,13 @@ const handleServerShutdown = async () => {
     logger.error('Error shutting down server:', error);
   }
 };
+
+app.use('*', (req: Request, res: Response) => {
+  res.status(404).json({
+    code: 'NotFound',
+    message: `Route not found: ${req.originalUrl}`,
+  });
+});
 
 process.on('SIGINT', handleServerShutdown); // Handle Ctrl+C
 process.on('SIGTERM', handleServerShutdown); // Handle termination signals

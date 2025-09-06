@@ -4,7 +4,7 @@ import { Response } from 'express';
 import jwt from 'jsonwebtoken';
 import tokenModel from '@src/models/token.model';
 import { encryptData } from './encrption';
-import { setCache } from '@src/redis';
+import { setCache, deleteCache } from '@src/redis';
 import { generateRedisKey, generateTTL } from '@src/utils/index.util';
 
 export const generateAccessToken = (userId: Types.ObjectId): string => {
@@ -37,6 +37,8 @@ export const generateTokens = async (
   // THIS IS THE PART WHERE I WANT TO STORE THE REFRESH TOKEN IN REDIS INSTEAD OF MONGODB (FOR PRACTICE)
   /////////////////////////////////////////////////////////////
 
+  await deleteCache(generateRedisKey(userId.toString()));
+
   const decoded = jwt.decode(refreshToken, { json: true }) as {
     exp: number;
     userId: Types.ObjectId;
@@ -49,6 +51,7 @@ export const generateTokens = async (
     encryptedRefreshToken,
     generateTTL(expiresAt.getTime() / 1000),
   );
+
   // ///////////////////////////////////////////////////////////////////////
 
   logger.info('Refresh Token Created', {
@@ -57,11 +60,21 @@ export const generateTokens = async (
     encryptedRefreshToken,
   });
 
+  // NOTE:  WE CAN CLEAR THE TOKENS FROM COOKIES FROM THE CLIENT SIDE BEFORE SETTING NEW ONES
+
   // send the token to the client
   res.cookie('refreshToken', encryptedRefreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  });
+
+  res.cookie('accessToken', accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
   });
 
   return { accessToken, refreshToken };

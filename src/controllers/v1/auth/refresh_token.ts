@@ -48,6 +48,7 @@ const refreshToken = async (req: Request, res: Response): Promise<void> => {
       encryptedRefreshToken: refreshToken,
       cachedToken,
     });
+    
     const accessToken = generateAccessToken(userId);
 
     res.status(200).json({

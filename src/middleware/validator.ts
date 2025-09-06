@@ -22,7 +22,7 @@ export const validator =
 
       next();
     } catch (error: unknown) {
-  
+  console.log(error)
       if (error instanceof ZodError) {
         const errorMessage = error.issues.map((issue) => {
           return { message: issue.message, path: issue.path };

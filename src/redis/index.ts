@@ -1,4 +1,3 @@
-
 import { redisClient } from './connection';
 import { logger } from '@src/lib/winston';
 
@@ -21,6 +20,17 @@ export const getCache = async (key: string) => {
     return data;
   } catch (error) {
     logger.error('Error while getting redis data', error);
+    return null;
+  }
+};
+
+export const deleteCache = async (key: string) => {
+  try {
+    const result = await redisClient.del(key);
+    logger.info(`Redis: Delete-Cache`, key, 'Result: ', result);
+    return result;
+  } catch (error) {
+    logger.error('Error while deleting redis data', error);
     return null;
   }
 };
