@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import path from 'path';
 
 import { ZodObject, ZodError } from 'zod';
 
@@ -22,7 +21,7 @@ export const validator =
 
       next();
     } catch (error: unknown) {
-  console.log(error)
+      console.log(error);
       if (error instanceof ZodError) {
         const errorMessage = error.issues.map((issue) => {
           return { message: issue.message, path: issue.path };

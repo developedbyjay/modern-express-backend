@@ -6,10 +6,12 @@ import { Types } from 'mongoose';
 import { generateAccessToken, verifyRefreshToken } from '@src/lib/jwt';
 import type { refreshTokenInput } from '@src/schemas/user.schema';
 import { decryptData } from '@src/lib/encrption';
-import { getCache } from '@src/redis';
-import { generateRedisKey } from '@src/utils/index.util';
+import { deleteCache, getCache } from '@src/redis';
+import { generateRedisKey, generateTTL } from '@src/utils/index.util';
 
 const refreshToken = async (req: Request, res: Response): Promise<void> => {
+  // When a request is made to refresh the access token, the refresh token is sent in the cookies by setting withCredentials: true in the frontend axios request
+
   const { refreshToken } = req.cookies as refreshTokenInput;
 
   try {
@@ -42,13 +44,29 @@ const refreshToken = async (req: Request, res: Response): Promise<void> => {
     //   return;
     // }
 
-    logger.info('Refresh Token Generated', {
-      userId,
-      refreshToken: decryptedRefreshToken,
-      encryptedRefreshToken: refreshToken,
-      cachedToken,
-    });
-    
+    // logger.info('Refresh Token Generated', {
+    //   userId,
+    //   refreshToken: decryptedRefreshToken,
+    //   encryptedRefreshToken: refreshToken,
+    //   cachedToken,
+    // });
+
+    const decodedJWTDataFromCache = verifyRefreshToken(
+      decryptData(cachedToken),
+    ) as { exp: number; userId: Types.ObjectId };
+
+    const ttl = generateTTL(decodedJWTDataFromCache.exp * 1000);
+
+    if (ttl < 0) {
+      deleteCache(generateRedisKey(userId.toString()));
+      // await tokenModel.deleteOne({ token: decryptData(cachedToken) });
+      res.status(401).json({
+        code: 'AuthenticationError',
+        message: 'Refresh token expired, please login again',
+      });
+      return;
+    }
+
     const accessToken = generateAccessToken(userId);
 
     res.status(200).json({

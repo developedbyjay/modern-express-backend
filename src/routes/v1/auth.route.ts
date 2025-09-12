@@ -13,6 +13,14 @@ import authenticate from '@src/middleware/authenticate';
 
 const router = Router();
 
+router.post(
+  '/validateAccessToken',
+  authenticate,
+  (req: Request, res: Response, next: NextFunction) => {
+    res.status(200).json({ message: 'Access token is valid' });
+  },
+);
+
 router.post('/login', validator(loginSchema), login);
 router.post('/register', validator(createUserSchema), register);
 router.post('/refreshToken', validator(refreshTokenSchema), refreshToken);

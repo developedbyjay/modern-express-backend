@@ -16,7 +16,6 @@ import type { Types } from 'mongoose';
  */
 
 const authenticate = (req: Request, res: Response, next: NextFunction) => {
-
   const [bearer, token] = (req.headers.authorization || '').split(' ');
 
   if (bearer !== 'Bearer' || !token) {

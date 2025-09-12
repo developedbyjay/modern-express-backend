@@ -1,5 +1,5 @@
 import type { CorsOptions } from 'cors';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
@@ -16,11 +16,7 @@ const PORT = process.env.PORT || 8080;
 
 const corsOption: CorsOptions = {
   origin(origin, callback) {
-    console.log('CORS Origin:', {
-      origin,
-      type: origin ? 'cross-origin' : 'same-origin/direct',
-      nodeEnv: process.env.NODE_ENV,
-    });
+    
     if (
       process.env.NODE_ENV === 'development' ||
       !origin ||
@@ -80,12 +76,12 @@ const handleServerShutdown = async () => {
   }
 };
 
-app.use('*', (req: Request, res: Response) => {
-  res.status(404).json({
-    code: 'NotFound',
-    message: `Route not found: ${req.originalUrl}`,
-  });
-});
+// app.all('*', (req: Request, res: Response, next: NextFunction) => {
+//   return res.status(404).json({
+//     code: 'NotFound',
+//     message: `Route not found: ${req.originalUrl}`,
+//   });
+// });
 
 process.on('SIGINT', handleServerShutdown); // Handle Ctrl+C
 process.on('SIGTERM', handleServerShutdown); // Handle termination signals
