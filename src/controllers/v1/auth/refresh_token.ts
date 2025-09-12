@@ -55,10 +55,12 @@ const refreshToken = async (req: Request, res: Response): Promise<void> => {
       decryptData(cachedToken),
     ) as { exp: number; userId: Types.ObjectId };
 
-    const ttl = generateTTL(decodedJWTDataFromCache.exp * 1000);
+    const ttl = generateTTL(decodedJWTDataFromCache.exp);
 
-    if (ttl < 0) {
-      deleteCache(generateRedisKey(userId.toString()));
+    console.log({ ttl });
+    if (ttl <= 0) {
+      console.log('TTL is less than or equal to 0, deleting cache');
+      await deleteCache(generateRedisKey(userId.toString()));
       // await tokenModel.deleteOne({ token: decryptData(cachedToken) });
       res.status(401).json({
         code: 'AuthenticationError',
