@@ -17,7 +17,7 @@ const initializeRedisConnection = async () => {
 
 const redisDisconnect = async () => {
   try {
-    await redisClient.destroy();
+    redisClient.destroy();
     logger.info('Redis Disconnected', {
       timeStamp: new Date().toISOString(),
       URI: process.env.REDIS_URI || 'REDIS_URI not defined',

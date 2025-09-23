@@ -16,7 +16,7 @@ const authorize = (roles: AuthRole[]) => {
         });
         return;
       }
-      if (!roles.includes(user?.role as AuthRole)) {
+      if (!roles.includes(user.role as AuthRole)) {
         res.status(401).json({
           code: 'AuthourizationError',
           message: 'You are not authorized for this operation',

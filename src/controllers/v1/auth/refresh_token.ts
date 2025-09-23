@@ -19,6 +19,7 @@ const refreshToken = async (req: Request, res: Response): Promise<void> => {
 
     const jwtPayload = verifyRefreshToken(decryptedRefreshToken) as {
       userId: Types.ObjectId;
+      exp:number
     };
 
     const userId = jwtPayload.userId;
@@ -51,11 +52,8 @@ const refreshToken = async (req: Request, res: Response): Promise<void> => {
     //   cachedToken,
     // });
 
-    const decodedJWTDataFromCache = verifyRefreshToken(
-      decryptData(cachedToken),
-    ) as { exp: number; userId: Types.ObjectId };
 
-    const ttl = generateTTL(decodedJWTDataFromCache.exp);
+    const ttl = generateTTL(jwtPayload.exp);
 
     console.log({ ttl });
     if (ttl <= 0) {
